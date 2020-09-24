@@ -51,6 +51,8 @@ VARIABLES = {
     "var11": "better.",
 }
 
+VARIABLES["tagstring"] = ", ".join(VARIABLES["tags"])
+
 
 def import_engine(module_name):
     """Import designated engine by name."""
