@@ -25,5 +25,6 @@ def environments(session, engine):
         .strip()
         .split("\n")
     )
-    session.install(".", "beautifulsoup4", "lxml", "pytest", "pytest-datadir", *requirements)
+    session.install(".", "beautifulsoup4", "lxml", "pytest", "pytest-datadir")
+    session.install(*requirements)
     session.run("pytest", "--engine", engine)
