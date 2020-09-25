@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{title}}</title>
+  </head>
+  <body>
+    <h1>{{title}}</h1>
+    {{!base}}
+    <h2>Links</h2>
+    <ol>
+      % for link in links:
+      <li><a href="{{link['url']}}">{{link['text']}}</a></li>
+      % end
+    </ol>
+  </body>
+</html>
