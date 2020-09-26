@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{title}}</title>
+  </head>
+  <body>
+    <h1>{{title}}</h1>
+    {% block body %}{% endblock %}
+    <h2>Links</h2>
+    <ol>
+      {{#links}}
+      <li><a href="{{url}}">{{text}}</a></li>
+      {{/links}}
+    </ol>
+  </body>
+</html>

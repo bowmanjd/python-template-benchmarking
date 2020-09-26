@@ -61,7 +61,18 @@ def import_engine(module_name):
     return engine
 
 
-def render(engine, template):
+def render_setup(engine):
     """Render designated template with designated engine."""
-    config = engine.config.setup()
-    return engine.config.render(config, template, VARIABLES)
+    setup = engine.config.setup()
+    return setup
+
+
+def render_fresh(engine, template):
+    """Render designated template with designated engine."""
+    setup = engine.config.setup()
+    return engine.config.render(setup, template, VARIABLES)
+
+
+def render_only(engine, setup, template):
+    """Render designated template with designated engine."""
+    return engine.config.render(setup, template, VARIABLES)
