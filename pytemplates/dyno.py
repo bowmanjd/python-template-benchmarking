@@ -1,6 +1,7 @@
 """Render templates using designated engines."""
 
 import importlib
+from pathlib import Path
 
 VARIABLES = {
     "author": "Jonathan Bowman",
@@ -76,3 +77,34 @@ def render_fresh(engine, template):
 def render_only(engine, setup, template):
     """Render designated template with designated engine."""
     return engine.config.render(setup, template, VARIABLES)
+
+
+def read_template(engine, template_name):
+    """Read template string from file and get path."""
+    template_path = Path(engine.__name__.replace(".", "/"))
+    template_file = template_path / template_name
+    template_string = template_file.read_text()
+    return template_string, template_path
+
+
+def precompile(engine, template_name):
+    """Compile designated template with designated engine."""
+    template_string, template_path = read_template(engine, template_name)
+    return engine.config.compile_template(template_string, template_path)
+
+
+def render_compiled(engine, compiled_template):
+    """Render designated compiled template with designated engine."""
+    return engine.config.render_compiled(compiled_template, VARIABLES)
+
+
+def compile_and_render(engine, template_name):
+    """Compile and render designated template with designated engine."""
+    compiled_template = precompile(engine, template_name)
+    return engine.config.render_compiled(compiled_template, VARIABLES)
+
+
+def render_string(engine, template_name):
+    """Render designated template with designated engine, without explicitly compiling."""
+    template_string, template_path = read_template(engine, template_name)
+    return engine.config.render_string(template_string, template_path, VARIABLES)

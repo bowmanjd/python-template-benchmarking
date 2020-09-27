@@ -32,3 +32,27 @@ def test_article_reuse(benchmark, engine):
     config = dyno.render_setup(engine)
     template = "article.html"
     benchmark(dyno.render_only, engine, config, template)
+
+
+def test_compile_and_render_article(benchmark, datadir, engine):
+    """Compare rendered article with reference article."""
+    template = "article.html"
+    reference = (datadir / template).read_text()
+
+    rendered = benchmark(dyno.compile_and_render, engine, template)
+    print(rendered)
+    formatted = standardize_html(rendered)
+    assert reference == formatted
+
+
+def test_render_compiled_article(benchmark, engine):
+    """Benchmark only rendering, not compilation."""
+    template = "article.html"
+    compiled_template = dyno.precompile(engine, template)
+    benchmark(dyno.render_compiled, engine, compiled_template)
+
+
+def test_render_string_article(benchmark, engine):
+    """Benchmark rendering from string."""
+    template = "article.html"
+    benchmark(dyno.render_string, engine, template)
