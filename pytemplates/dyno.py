@@ -57,40 +57,10 @@ VARIABLES = {
 VARIABLES["tagstring"] = ", ".join(VARIABLES["tags"])
 
 
-def import_engine(module_name):
-    """Import designated engine by name."""
-    engine = importlib.import_module(f"pytemplates.engines.{module_name}")
-    engine.config = importlib.import_module(".config", engine.__name__)
-    return engine
-
-
-def render_setup(engine):
-    """Render designated template with designated engine."""
-    setup = engine.config.setup()
-    return setup
-
-
-def render_fresh(engine, template):
-    """Render designated template with designated engine."""
-    setup = engine.config.setup()
-    return engine.config.render(setup, template, VARIABLES)
-
-
-def render_only(engine, setup, template):
-    """Render designated template with designated engine."""
-    return engine.config.render(setup, template, VARIABLES)
-
-
-def populate_dict(template, template_path, includes_re, template_dict):
-    """Recursively populate template dict."""
-    template_names = includes_re.findall(template)
-    for template_name in template_names:
-        if template_name not in template_dict:
-            template_dict[template_name] = (template_path / template_name).read_text()
-            populate_dict(
-                template_dict[template_name], template_path, includes_re, template_dict
-            )
-    return template_dict
+def compile_and_render(engine, template_name):
+    """Compile and render designated template with designated engine."""
+    compiled_template = precompile(engine, template_name)
+    return engine.config.render_compiled(compiled_template, VARIABLES)
 
 
 @lru_cache
@@ -99,7 +69,13 @@ def get_template_dict(engine, template_name):
     template_string, template_path = read_template(engine, template_name)
     template_dict = {template_name: template_string}
     includes_re = re.compile(engine.config.INCLUDES_RE)
-    populate_dict(template_string, template_path, includes_re, template_dict)
+    try:
+        includes_ext = engine.config.INCLUDES_EXT
+    except AttributeError:
+        includes_ext = ""
+    populate_dict(
+        template_string, template_path, includes_re, template_dict, includes_ext
+    )
     return template_dict
 
 
@@ -110,11 +86,25 @@ def get_template_file(engine, template_name):
     return template_file
 
 
-def read_template(engine, template_name):
-    """Read template string from file and get path."""
-    template_file = get_template_file(engine, template_name)
-    template_string = template_file.read_text()
-    return template_string, template_file.parent
+def import_engine(module_name):
+    """Import designated engine by name."""
+    engine = importlib.import_module(f"pytemplates.engines.{module_name}")
+    engine.config = importlib.import_module(".config", engine.__name__)
+    return engine
+
+
+def populate_dict(template, template_path, includes_re, template_dict, includes_ext=""):
+    """Recursively populate template dict."""
+    template_names = includes_re.findall(template)
+    for template_name in template_names:
+        if template_name not in template_dict:
+            template_dict[template_name] = (
+                template_path / f"{template_name}{includes_ext}"
+            ).read_text()
+            populate_dict(
+                template_dict[template_name], template_path, includes_re, template_dict
+            )
+    return template_dict
 
 
 def precompile(engine, template_name):
@@ -126,14 +116,15 @@ def precompile(engine, template_name):
     return engine.config.compile_template(template_dict, template_name)
 
 
+def read_template(engine, template_name):
+    """Read template string from file and get path."""
+    template_file = get_template_file(engine, template_name)
+    template_string = template_file.read_text()
+    return template_string, template_file.parent
+
+
 def render_compiled(engine, compiled_template):
     """Render designated compiled template with designated engine."""
-    return engine.config.render_compiled(compiled_template, VARIABLES)
-
-
-def compile_and_render(engine, template_name):
-    """Compile and render designated template with designated engine."""
-    compiled_template = precompile(engine, template_name)
     return engine.config.render_compiled(compiled_template, VARIABLES)
 
 

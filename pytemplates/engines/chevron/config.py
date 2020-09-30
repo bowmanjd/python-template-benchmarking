@@ -1,8 +1,9 @@
 """Rendering for the chevron Mustache engine."""
 
-from pathlib import Path
-
 import chevron
+
+INCLUDES_RE = r"{{>\s+(\S+)\s*}}"
+INCLUDES_EXT = ".mustache"
 
 
 def setup():
@@ -21,30 +22,43 @@ def render(config, template_name, variables):
     return rendered
 
 
-def compile_template(template, template_path, partials_dict=None):
+def compile_template(template_dict, template_name):
     """Compile template."""
-    if partials_dict is None:
-        partials_dict = {}
-    new_partials_dict = partials_dict.copy()
-    tokenized = tuple(chevron.tokenizer.tokenize(template))
-    for tag in tokenized:
-        if tag[0] == "partial" and tag[1] not in new_partials_dict:
-            partial_template = template_path.joinpath(f"{tag[1]}.mustache").read_text()
-            partial, partial_partials_dict = compile_template(
-                partial_template, template_path, new_partials_dict
-            )
-            new_partials_dict[tag[1]] = partial
-            new_partials_dict = {**new_partials_dict, **partial_partials_dict}
+    compiled = {
+        template_name: tuple(chevron.tokenizer.tokenize(template_dict[template_name]))
+        for template_name in template_dict
+    }
+    return compiled, template_name
 
-    return (tokenized, new_partials_dict)
+
+# def compile_template(template, template_path, partials_dict=None):
+#     """Compile template."""
+#     if partials_dict is None:
+#         partials_dict = {}
+#     new_partials_dict = partials_dict.copy()
+#     tokenized = tuple(chevron.tokenizer.tokenize(template))
+#     for tag in tokenized:
+#         if tag[0] == "partial" and tag[1] not in new_partials_dict:
+#             partial_template = template_path.joinpath(f"{tag[1]}.mustache").read_text()
+#             partial, partial_partials_dict = compile_template(
+#                 partial_template, template_path, new_partials_dict
+#             )
+#             new_partials_dict[tag[1]] = partial
+#             new_partials_dict = {**new_partials_dict, **partial_partials_dict}
+#
+#     return (tokenized, new_partials_dict)
 
 
 def render_compiled(compiled, variables):
     """Render from compiled template with interpolated variables."""
-    template, partials_dict = compiled
-    return chevron.render(template, variables, partials_dict=partials_dict)
+    template_dict, template_name = compiled
+    return chevron.render(
+        template_dict[template_name], variables, partials_dict=template_dict
+    )
 
 
-def render_string(template, template_path, variables):
+def render_from_file(template_file, variables):
     """Render from template string with interpolated variables."""
-    return chevron.render(template, variables, partials_path=str(template_path))
+    return chevron.render(
+        template_file.read_text(), variables, partials_path=str(template_file.parent)
+    )

@@ -5,21 +5,6 @@ from jinja2 import Environment, DictLoader, FileSystemLoader
 INCLUDES_RE = r"{%\s*extends\s+['\"]([^'\"]+)['\"]\s*%}"
 
 
-def setup():
-    """Initial environment setup."""
-    config = {}
-    config["environment"] = Environment(
-        loader=FileSystemLoader("pytemplates/engines/jinja2")
-    )
-    return config
-
-
-def render(config, template_name, variables):
-    """Render template with interpolated variables."""
-    template = config["environment"].get_template(template_name)
-    return template.render(**variables)
-
-
 def compile_template(template_dict, template_name):
     """Compile template."""
     env = Environment(loader=DictLoader(template_dict))
