@@ -52,7 +52,7 @@ def test_render_compiled_article(benchmark, engine):
     benchmark(dyno.render_compiled, engine, compiled_template)
 
 
-def test_render_string_article(benchmark, engine):
+def test_render_from_file_article(benchmark, engine):
     """Benchmark rendering from string."""
     template = "article.html"
-    benchmark(dyno.render_string, engine, template)
+    benchmark(dyno.render_from_file, engine, template)

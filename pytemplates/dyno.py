@@ -1,6 +1,8 @@
 """Render templates using designated engines."""
 
 import importlib
+import re
+from functools import lru_cache
 from pathlib import Path
 
 VARIABLES = {
@@ -79,18 +81,49 @@ def render_only(engine, setup, template):
     return engine.config.render(setup, template, VARIABLES)
 
 
-def read_template(engine, template_name):
-    """Read template string from file and get path."""
+def populate_dict(template, template_path, includes_re, template_dict):
+    """Recursively populate template dict."""
+    template_names = includes_re.findall(template)
+    for template_name in template_names:
+        if template_name not in template_dict:
+            template_dict[template_name] = (template_path / template_name).read_text()
+            populate_dict(
+                template_dict[template_name], template_path, includes_re, template_dict
+            )
+    return template_dict
+
+
+@lru_cache
+def get_template_dict(engine, template_name):
+    """Load main and associated templates."""
+    template_string, template_path = read_template(engine, template_name)
+    template_dict = {template_name: template_string}
+    includes_re = re.compile(engine.config.INCLUDES_RE)
+    populate_dict(template_string, template_path, includes_re, template_dict)
+    return template_dict
+
+
+def get_template_file(engine, template_name):
+    """Get template path."""
     template_path = Path(engine.__name__.replace(".", "/"))
     template_file = template_path / template_name
+    return template_file
+
+
+def read_template(engine, template_name):
+    """Read template string from file and get path."""
+    template_file = get_template_file(engine, template_name)
     template_string = template_file.read_text()
-    return template_string, template_path
+    return template_string, template_file.parent
 
 
 def precompile(engine, template_name):
     """Compile designated template with designated engine."""
-    template_string, template_path = read_template(engine, template_name)
-    return engine.config.compile_template(template_string, template_path)
+    # template_string, template_path = read_template(engine, template_name)
+
+    # return engine.config.compile_template(template_string, template_path, template_dict)
+    template_dict = get_template_dict(engine, template_name)
+    return engine.config.compile_template(template_dict, template_name)
 
 
 def render_compiled(engine, compiled_template):
@@ -104,7 +137,7 @@ def compile_and_render(engine, template_name):
     return engine.config.render_compiled(compiled_template, VARIABLES)
 
 
-def render_string(engine, template_name):
-    """Render designated template with designated engine, without explicitly compiling."""
-    template_string, template_path = read_template(engine, template_name)
-    return engine.config.render_string(template_string, template_path, VARIABLES)
+def render_from_file(engine, template_name):
+    """Render designated template with designated engine, loading from filesystem."""
+    template_file = get_template_file(engine, template_name)
+    return engine.config.render_from_file(template_file, VARIABLES)

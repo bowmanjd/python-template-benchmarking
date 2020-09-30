@@ -12,6 +12,15 @@ def setup():
     return config
 
 
+def render(config, template_name, variables):
+    """Render template with interpolated variables."""
+    with (config["path"] / template_name).open() as template:
+        rendered = chevron.render(
+            template, variables, partials_path=str(config["path"])
+        )
+    return rendered
+
+
 def compile_template(template, template_path, partials_dict=None):
     """Compile template."""
     if partials_dict is None:
@@ -39,12 +48,3 @@ def render_compiled(compiled, variables):
 def render_string(template, template_path, variables):
     """Render from template string with interpolated variables."""
     return chevron.render(template, variables, partials_path=str(template_path))
-
-
-def render(config, template_name, variables):
-    """Render template with interpolated variables."""
-    with (config["path"] / template_name).open() as template:
-        rendered = chevron.render(
-            template, variables, partials_path=str(config["path"])
-        )
-    return rendered
