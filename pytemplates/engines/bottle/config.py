@@ -1,18 +1,25 @@
 """Rendering for bottle.py SimpleTemplate engine."""
 
-from pathlib import Path
-
 from bottle import SimpleTemplate
 
-
-def setup():
-    """Initial environment setup."""
-    config = {}
-    config["path"] = Path("pytemplates/engines/bottle/")
-    return config
+INCLUDES_RE = r"%\s+(?:rebase|include)\(['\"]([^'\"]+)['\"][^\)]*\)"
 
 
-def render(config, template_name, variables):
-    """Render template with interpolated variables."""
-    template = SimpleTemplate(name=template_name, lookup=[config["path"]])
-    return template.render(**variables)
+def compile_template(template_dict, template_name):
+    """Compile template."""
+    templates = template_dict.copy()
+    compiled = SimpleTemplate(name=template_name, source=templates.pop(template_name))
+    compiled.cache = {
+        name: SimpleTemplate(name=name, source=templates[name]) for name in templates
+    }
+    return compiled
+
+
+def render_compiled(compiled, variables):
+    """Render from compiled template with interpolated variables."""
+    return compiled.render(**variables)
+
+
+def render_from_file(template_file, variables):
+    """Render from file with interpolated variables."""
+    return SimpleTemplate(name=template_file.name, lookup=[template_file.parent])
