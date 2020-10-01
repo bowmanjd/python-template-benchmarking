@@ -7,10 +7,11 @@ INCLUDES_RE = r"%\s+(?:rebase|include)\(['\"]([^'\"]+)['\"][^\)]*\)"
 
 def compile_template(template_dict, template_name):
     """Compile template."""
-    templates = template_dict.copy()
-    compiled = SimpleTemplate(name=template_name, source=templates.pop(template_name))
+    compiled = SimpleTemplate(name=template_name, source=template_dict[template_name])
     compiled.cache = {
-        name: SimpleTemplate(name=name, source=templates[name]) for name in templates
+        name: SimpleTemplate(name=name, source=template_dict[name])
+        for name in template_dict
+        if name != template_name
     }
     return compiled
 
@@ -22,4 +23,5 @@ def render_compiled(compiled, variables):
 
 def render_from_file(template_file, variables):
     """Render from file with interpolated variables."""
-    return SimpleTemplate(name=template_file.name, lookup=[template_file.parent])
+    template = SimpleTemplate(name=template_file.name, lookup=[template_file.parent])
+    return template.render(**variables)
