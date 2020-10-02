@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
-    {% block body %}<h2>Front Matter</h2>
+{% include 'header.html' %}
+    <h2>Front Matter</h2>
     <ul>
       <li>Author: {{ author }}</li>
       <li>Category: {{ category }}</li>
       <li>Date: {{ date }}</li>
-      <li>Tags: {{ tags | @join: ', ' }}</li>
+      <li>Tags: {{ tags | join: ', ' }}</li>
     </ul>
     <h2>Body</h2>
     <p>
@@ -151,4 +151,5 @@
       lacinia eros massa, eu commodo nisl aliquet id. Phasellus mattis vel magna
       pharetra vehicula. Mauris consectetur molestie velit, et consectetur
       lectus ullamcorper et.
-    </p>{% endblock%}
+    </p>
+{% include 'footer.html' %}

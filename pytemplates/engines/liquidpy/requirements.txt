@@ -1,1 +1,1 @@
-liquidpy
+git+https://github.com/pwwang/liquidpy
