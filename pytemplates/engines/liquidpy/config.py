@@ -10,7 +10,7 @@ def compile_template(template_dict, template_name):
     """Compile template."""
     template_path = "pytemplates/engines/liquidpy/"
     template = Liquid(
-        template_dict[template_name], liquid_config={"include_dir": [template_path]},
+        template_dict[template_name], liquid_config={"extends_dir": [template_path]},
     )
     return template
 

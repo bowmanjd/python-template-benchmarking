@@ -1,4 +1,5 @@
-{% include 'header.html' %}
+{% extends 'base.html' %}
+    {% block body %}
     <h2>Front Matter</h2>
     <ul>
       <li>Author: {{ author }}</li>
@@ -152,4 +153,4 @@
       pharetra vehicula. Mauris consectetur molestie velit, et consectetur
       lectus ullamcorper et.
     </p>
-{% include 'footer.html' %}
+    {% endblock%}

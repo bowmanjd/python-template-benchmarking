@@ -16,9 +16,7 @@ def test_compile_and_render_article(benchmark, datadir, engine):
     """Compare rendered article with reference article."""
     template = "article.html"
     reference = (datadir / template).read_text()
-
     rendered = benchmark(dyno.compile_and_render, engine, template)
-    print(rendered)
     formatted = standardize_html(rendered)
     assert reference == formatted
 
