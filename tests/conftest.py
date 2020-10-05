@@ -1,6 +1,6 @@
 """Configuration for pytest."""
 
-import pytemplates.dyno
+import tplbench.dyno
 
 
 def pytest_addoption(parser):
@@ -18,6 +18,6 @@ def pytest_generate_tests(metafunc):
     if "engine" in metafunc.fixturenames:
         module_names = metafunc.config.getoption("engine")
         engines = [
-            pytemplates.dyno.import_engine(module_name) for module_name in module_names
+            tplbench.dyno.import_engine(module_name) for module_name in module_names
         ]
         metafunc.parametrize("engine", engines)

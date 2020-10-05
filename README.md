@@ -1,15 +1,23 @@
-# pytemplates
+# python-template-benchmarking
 
-Example code for various Python template engines
+A toolkit for performance comparison of Python templating engines.
 
 ## Installation
 
-Clone this repository, then run `poetry install`
+First, install [nox]. I recommend [using pipx](https://dev.to/bowmanjd/how-do-i-install-a-python-command-line-tool-or-script-hint-pipx-3i2).
+
+Then clone this repository, and make it the working directory.
+
+```console
+pipx install nox
+git clone https://github.com/bowmanjd/python-template-benchmarking.git
+cd python-template-benchmarking
+```
 
 ## Usage
 
 ```console
-poetry run demo
+nox
 ```
 
 ## Contributing
@@ -21,6 +29,4 @@ Please feel free to submit pull requests and/or open issues.
 Copyright 2020 Jonathan Bowman. All documentation and code contained in this repository may be freely shared in compliance with [the Apache License, Version 2.0][apache 2.0], and is provided “AS IS” without warranties or conditions of any kind.
 
 [apache 2.0]: http://www.apache.org/licenses/LICENSE-2.0
-[httpx]: https://www.python-httpx.org/
-[salesforce rest api]: https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/
-[salesforce]: https://developer.salesforce.com/
+[nox]: https://nox.thea.codes/

@@ -8,7 +8,7 @@ INCLUDES_RE = r"{%\s*(?:extends|include)\s+['\"]([^'\"]+)['\"]\s*%}"
 
 def compile_template(template_dict, template_name):
     """Compile template."""
-    template_path = "pytemplates/engines/liquidpy/"
+    template_path = "tplbench/engines/liquidpy/"
     template = Liquid(
         template_dict[template_name], liquid_config={"extends_dir": [template_path]},
     )

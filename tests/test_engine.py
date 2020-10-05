@@ -2,7 +2,7 @@
 
 from bs4 import BeautifulSoup
 
-from pytemplates import dyno
+from tplbench import dyno
 
 
 def standardize_html(html):
@@ -21,7 +21,7 @@ def test_compile_and_render_article(benchmark, datadir, engine):
     assert reference == formatted
 
 
-def test_render_compiled_article(benchmark, engine):
+def test_render_from_compiled_article(benchmark, engine):
     """Benchmark only rendering, not compilation."""
     template = "article.html"
     compiled_template = dyno.precompile(engine, template)

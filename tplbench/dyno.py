@@ -88,7 +88,7 @@ def get_template_file(engine, template_name):
 
 def import_engine(module_name):
     """Import designated engine by name."""
-    engine = importlib.import_module(f"pytemplates.engines.{module_name}")
+    engine = importlib.import_module(f"tplbench.engines.{module_name}")
     engine.config = importlib.import_module(".config", engine.__name__)
     return engine
 

@@ -1,23 +1,26 @@
 """Task runner."""
 
 import importlib.resources
+from pathlib import Path
+import sys
 
 import nox
 
-from pytemplates import dyno, engines
-
 nox.options.reuse_existing_virtualenvs = True
+nox.options.sessions = ["bench"]
 
-template_engines = [
+sys.path = list(dict.fromkeys(("", *sys.path)))
+
+TEMPLATE_ENGINES = [
     engine
-    for engine in importlib.resources.contents(engines)
+    for engine in importlib.resources.contents("tplbench.engines")
     if not engine.startswith("_")
 ]
 
 
 def setup(session, engine):
     """Setup sessions."""
-    new_module = importlib.import_module(f"pytemplates.engines.{engine}")
+    new_module = importlib.import_module(f"tplbench.engines.{engine}")
     requirements = (
         importlib.resources.read_text(new_module, "requirements.txt")
         .strip()
@@ -30,15 +33,23 @@ def setup(session, engine):
 
 
 @nox.session
-@nox.parametrize("engine", template_engines, ids=template_engines)
+@nox.parametrize("engine", TEMPLATE_ENGINES, ids=TEMPLATE_ENGINES)
 def bench(session, engine):
     """Test and benchmark the designated templating engine."""
+    Path("benchmarks").mkdir(exist_ok=True)
     setup(session, engine)
-    session.run("pytest", "--engine", engine, "--benchmark-columns=ops")
+    session.run(
+        "pytest",
+        "--engine",
+        engine,
+        "--benchmark-columns=ops",
+        "--benchmark-name=short",
+        f"--benchmark-json=benchmarks/{engine}.json",
+    )
 
 
 @nox.session
-@nox.parametrize("engine", template_engines, ids=template_engines)
+@nox.parametrize("engine", TEMPLATE_ENGINES, ids=TEMPLATE_ENGINES)
 def nobench(session, engine):
     """Test and benchmark the designated templating engine."""
     setup(session, engine)
