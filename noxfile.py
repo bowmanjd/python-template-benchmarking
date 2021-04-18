@@ -1,5 +1,6 @@
 """Task runner."""
 
+import contextlib
 import importlib.resources
 from pathlib import Path
 import sys
@@ -7,7 +8,7 @@ import sys
 import nox
 
 nox.options.reuse_existing_virtualenvs = True
-nox.options.sessions = ["bench"]
+nox.options.sessions = ["test"]
 
 sys.path = list(dict.fromkeys(("", *sys.path)))
 
@@ -33,24 +34,32 @@ def setup(session, engine):
 
 
 @nox.session
-@nox.parametrize("engine", TEMPLATE_ENGINES, ids=TEMPLATE_ENGINES)
-def bench(session, engine):
-    """Test and benchmark the designated templating engine."""
-    Path("benchmarks").mkdir(exist_ok=True)
-    setup(session, engine)
-    session.run(
-        "pytest",
-        "--engine",
-        engine,
-        "--benchmark-columns=ops",
-        "--benchmark-name=short",
-        f"--benchmark-json=benchmarks/{engine}.json",
-    )
+def templates(session):
+    """Create/update templates."""
+    session.install(".", "beautifulsoup4", "lxml", "mimesis")
+    session.run("ditto")
 
 
 @nox.session
 @nox.parametrize("engine", TEMPLATE_ENGINES, ids=TEMPLATE_ENGINES)
-def nobench(session, engine):
+def test(session, engine):
     """Test and benchmark the designated templating engine."""
+    nobench = False
+    if session.posargs:
+        args = session.posargs[:]
+        with contextlib.suppress(ValueError):
+            # Consume nobench argument, set nobench flag if present
+            nobench = bool(args.pop(args.index("--nobench")))
+
+    if nobench:
+        pytest_args = ["--benchmark-disable"]
+    else:
+        Path("benchmarks").mkdir(exist_ok=True)
+        pytest_args = [
+            "--benchmark-columns=ops",
+            f"--benchmark-json=benchmarks/{engine}.json",
+        ]
+
     setup(session, engine)
-    session.run("pytest", "--engine", engine, "--benchmark-disable")
+
+    session.run("pytest", "--engine", engine, *pytest_args)
