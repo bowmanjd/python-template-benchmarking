@@ -1,6 +1,6 @@
 # python-template-benchmarking
 
-A toolkit for performance comparison of Python templating engines.
+A (work-in-progress) toolkit for performance comparison of Python templating engines.
 
 ## Installation
 
